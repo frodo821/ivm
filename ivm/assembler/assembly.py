@@ -23,6 +23,7 @@ def parse_operand(operand: str) -> uint64:
 
 class Assembly:
   labels: dict[str, int]
+  label_candidates: dict[str, uint64]
   code: bytearray
 
   def __init__(self):
@@ -45,7 +46,7 @@ class Assembly:
       label = name[:-1]
       self.labels[label] = len(self.code)
       if label in self.label_candidates:
-        self.code.replace(uint64(self.label_candidates[label]).pack(), uint64(self.labels[label]).pack())
+        self.code.replace(self.label_candidates[label].pack(), uint64(self.labels[label]).pack())
       return
 
     if name.startswith('.'):
@@ -64,11 +65,11 @@ class Assembly:
       if operands[0] in self.labels:
         self.code.extend(uint64(self.labels[operands[0]]).pack())
       elif operands[0] in self.label_candidates:
-        self.label_candidates[operands[0]].append(len(self.code))
-        self.code.extend(uint64(0).pack())
+        self.code.extend(uint64(self.label_candidates[operands[0]]).pack())
       else:
-        self.label_candidates[operands[0]] = [0xAC00000000000000 | len(self.code)]
-        self.code.extend(uint64(0).pack())
+        candidate_label = uint64(0xAC00000000000000 | len(self.label_candidates))
+        self.label_candidates[operands[0]] = candidate_label
+        self.code.extend(candidate_label.pack())
       return
 
     for operand in operands:
