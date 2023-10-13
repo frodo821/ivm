@@ -2,7 +2,7 @@ from ivm import INSTRUCTION_SET
 from ivm.intergers import uint64
 
 name_op_map = {
-  f.__name__: (op, operands, flags) for op, (f, operands, flags) in INSTRUCTION_SET.items()
+  f.__name__.replace('_', ''): (op, operands, flags) for op, (f, operands, flags) in INSTRUCTION_SET.items()
 }
 
 def parse_operand(operand: str) -> uint64:
