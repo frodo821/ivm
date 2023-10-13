@@ -161,3 +161,57 @@ def cli(machine: AbstractMachine, _):
 @inst(uint64(0x00001020))
 def hlt(machine: AbstractMachine, _):
   machine.halted = True
+
+@inst(uint64(0x00001021), operands=1, is_jump=True)
+def jl(machine: AbstractMachine, operands):
+  if machine.sign != machine.overflow:
+    machine.ip = int(operands[0])
+
+@inst(uint64(0x00001022), operands=1, is_jump=True)
+def jle(machine: AbstractMachine, operands):
+  if machine.sign != machine.overflow or machine.zero:
+    machine.ip = int(operands[0])
+
+@inst(uint64(0x00001023), operands=1, is_jump=True)
+def jg(machine: AbstractMachine, operands):
+  if machine.sign == machine.overflow and not machine.zero:
+    machine.ip = int(operands[0])
+
+@inst(uint64(0x00001024), operands=1, is_jump=True)
+def jge(machine: AbstractMachine, operands):
+  if machine.sign == machine.overflow:
+    machine.ip = int(operands[0])
+
+@inst(uint64(0x00001025))
+def jld(machine: AbstractMachine, _):
+  if machine.sign != machine.overflow:
+    machine.ip = int(machine.stack.pop())
+
+@inst(uint64(0x00001026))
+def jled(machine: AbstractMachine, _):
+  if machine.sign != machine.overflow or machine.zero:
+    machine.ip = int(machine.stack.pop())
+
+@inst(uint64(0x00001027))
+def jgd(machine: AbstractMachine, _):
+  if machine.sign == machine.overflow and not machine.zero:
+    machine.ip = int(machine.stack.pop())
+
+@inst(uint64(0x00001028))
+def jged(machine: AbstractMachine, _):
+  if machine.sign == machine.overflow:
+    machine.ip = int(machine.stack.pop())
+
+@inst(uint64(0x10101021))
+def dbg(machine: AbstractMachine, _):
+  print("stack:", machine.stack)
+  print("ip:", machine.ip)
+  print("rp:", machine.rp)
+  print("flags:")
+  print("  zero:     ", machine.zero)
+  print("  carry:    ", machine.carry)
+  print("  overflow: ", machine.overflow)
+  print("  sign:     ", machine.sign)
+  print("  interrupt:", machine.interrupt)
+  print("  halted:   ", machine.halted)
+  print()
