@@ -2,6 +2,9 @@ from ivm.abc.machine import AbstractMachine
 from ivm.intergers import int64, uint64
 from ivm.lib.instruction import inst
 
+def sign(i: uint64) -> bool:
+  return (i >> 63) == 1
+
 @inst(uint64(0x00002000))
 def add(machine: AbstractMachine, _):
   a, b = machine.stack.pop(), machine.stack.pop()
@@ -9,7 +12,7 @@ def add(machine: AbstractMachine, _):
   machine.sign = (machine.stack[-1] >> 63) == 1
   machine.zero = machine.stack[-1] == 0
   machine.carry = machine.stack[-1] < a
-  machine.overflow = machine.stack[-1] < 0
+  machine.overflow = sign(a) == sign(b) and sign(a) != machine.sign
 
 @inst(uint64(0x00002001))
 def adc(machine: AbstractMachine, _):
@@ -18,7 +21,7 @@ def adc(machine: AbstractMachine, _):
   machine.sign = (machine.stack[-1] >> 63) == 1
   machine.zero = machine.stack[-1] == 0
   machine.carry = machine.stack[-1] - (1 if machine.carry else 0) < a
-  machine.overflow = machine.stack[-1] < 0
+  machine.overflow = sign(a) == sign(b) and sign(a) != machine.sign
 
 @inst(uint64(0x00002002))
 def sub(machine: AbstractMachine, _):
@@ -27,7 +30,7 @@ def sub(machine: AbstractMachine, _):
   machine.sign = (machine.stack[-1] >> 63) == 1
   machine.zero = machine.stack[-1] == 0
   machine.carry = a >= b
-  machine.overflow = machine.stack[-1] < 0
+  machine.overflow = sign(a) != sign(b) and sign(a) != machine.sign
 
 @inst(uint64(0x00002003))
 def sbb(machine: AbstractMachine, _):
@@ -36,7 +39,7 @@ def sbb(machine: AbstractMachine, _):
   machine.sign = (machine.stack[-1] >> 63) == 1
   machine.zero = machine.stack[-1] == 0
   machine.carry = a > b or (a == b and machine.carry)
-  machine.overflow = machine.stack[-1] < 0
+  machine.overflow = sign(a) != sign(b) and sign(a) != machine.sign
 
 @inst(uint64(0x00002004))
 def mul(machine: AbstractMachine, _):
