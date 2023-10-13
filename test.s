@@ -7,7 +7,9 @@ _start:
   add
   swap
   dec
-  jnz .loop
+  jz .end
+  jmp .loop
 ; loop ここまで
+.end:
   pop
   hlt
