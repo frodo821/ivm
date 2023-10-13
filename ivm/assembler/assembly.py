@@ -46,7 +46,7 @@ class Assembly:
       label = name[:-1]
       self.labels[label] = len(self.code)
       if label in self.label_candidates:
-        self.code.replace(self.label_candidates[label].pack(), uint64(self.labels[label]).pack())
+        self.code = self.code.replace(self.label_candidates[label].pack(), uint64(self.labels[label]).pack())
       return
 
     if name.startswith('.'):
